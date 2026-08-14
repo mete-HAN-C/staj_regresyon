@@ -1,0 +1,14 @@
+# API anahtarı gibi gizli bilgiler - ASLA GitHub'a yüklenmemeli
+.env
+ 
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+ 
+# Model artifacts (isteğe bağlı - büyük dosyalar, genelde repoya konmaz)
+artifacts/
+ 
+# Veri dosyaları (isteğe bağlı - Kaggle veri setleri genelde repoya konmaz)
+data/*.csv
