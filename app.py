@@ -5,17 +5,17 @@ Ev Fiyat Tahmin Modeli - Jüri Sunum Arayüzü
 Bu dosyayı proje kök dizinine (load/, clean/, model/, config/ klasörleriyle
 AYNI seviyeye) kopyala ve oradan çalıştır:
  
-    pip install gradio openai
+    pip install -r requirements.txt
     python app.py
  
 Gerekli: artifacts/ klasöründe final_model.pkl, preprocessor.pkl,
 feature_selector.pkl dosyalarının olması (yani train.py daha önce
-çalıştırılmış olmalı).
+çalıştırılmış olmalı). Model: ElasticNet (alpha=0.0005, l1_ratio=0.5).
  
 LLM ÖZELLİKLERİ (Groq API):
 API key artık ekranda görünmüyor, otomatik olarak proje kök dizinindeki
 .env dosyasından okunuyor. Çalıştırmadan önce:
-1) pip install python-dotenv
+1) pip install -r requirements.txt
 2) Proje kök dizininde .env dosyası oluştur, içine tek satır yaz:
    GROQ_API_KEY=gsk_senin_gercek_key_in
 """
@@ -121,7 +121,7 @@ def transform_row(row_dict):
 def predict_with_contributions(row_dict):
     """
     Fiyatı ve her seçili özelliğin tahmine olan yaklaşık dolar etkisini döndürür.
-    Etki, Lasso'nun GERÇEK katsayılarından hesaplanır (LLM'in uydurması değil):
+    Etki, ElasticNet'in GERCEK katsayılarından hesaplanır (LLM'in uydurması değil):
     o özelliğin log-fiyata katkısı çıkarılırsa fiyat ne olurdu, farkı hesaplanır.
     """
     X_row = transform_row(row_dict)
@@ -228,7 +228,7 @@ def explain_prediction(overall_qual, gr_liv_area, total_bsmt_sf, garage_cars,
     prompt = (
         "Sen bir ev fiyat tahmin modelinin sonucunu jüriye açıklayan bir asistansın.\n"
         f"Modelin tahmini satış fiyatı: ${price:,.0f}\n"
-        "Modelin (Lasso regresyon) gerçek katsayılarından hesaplanan, bu evin "
+        "Modelin (ElasticNet regresyon, alpha=0.0005, l1_ratio=0.5) gerçek katsayılarından hesaplanan, bu evin "
         f"fiyatını en çok etkileyen faktörler (yaklaşık dolar etkisiyle):\n{facts_text}\n\n"
         "Bu bilgileri kullanarak jüriye 3-4 cümlelik, sade ve doğal bir Türkçe "
         "açıklama yaz. SADECE yukarıdaki gerçek sayılara dayan, ekstra bilgi uydurma."
