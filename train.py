@@ -79,44 +79,9 @@ def main():
     val_preds = model.predict(X_val_selected)
     rmse = np.sqrt(mean_squared_error(y_val, val_preds))
     print(f"   => Validation RMSE (Log ölçeğinde): {rmse:.4f}")
-    
-    print("\n10. K-Fold CV ile nihai model performansı değlendiriliyor...")
-    # GridSearchCV adim 9'da hiperparametre seçimi için CV kullandı.
-    # Bu adimda, bulunan en iyi parametrelerle tam pipeline (Preprocessor +
-    # FeatureSelector + ElasticNet) 5-Fold CV ile baştan değlendiriliyor.
-    # Her fold'da pipeline BASTAN fit ediliyor (data leakage onlemi).
-    kf = KFold(n_splits=5, shuffle=True, random_state=42)
-    cv_scores = []
-
-    for fold, (tr_idx, va_idx) in enumerate(kf.split(X), start=1):
-        X_tr, X_va = X.iloc[tr_idx], X.iloc[va_idx]
-        y_tr, y_va = y_log.iloc[tr_idx], y_log.iloc[va_idx]
-
-        pp = FullPreprocessor()
-        X_tr = pp.fit_transform(X_tr)
-        X_va = pp.transform(X_va)
-
-        X_tr = drop_multicollinear(X_tr)
-        X_va = drop_multicollinear(X_va)
-
-        fs = FeatureSelector()
-        X_tr = fs.fit_transform(X_tr, y_tr)
-        X_va = fs.transform(X_va)
-
-        m = ElasticNet(alpha=best_alpha, l1_ratio=best_l1_ratio,
-                       random_state=42, max_iter=10000)
-        m.fit(X_tr, y_tr)
-
-        fold_rmse = np.sqrt(mean_squared_error(y_va, m.predict(X_va)))
-        cv_scores.append(fold_rmse)
-        print(f"   Fold {fold}: RMSE = {fold_rmse:.4f}")
-
-    cv_mean = np.mean(cv_scores)
-    cv_std  = np.std(cv_scores)
-    print(f"   => 5-Fold CV RMSE : {cv_mean:.4f} +/- {cv_std:.4f}")
 
     print("\n---------------------------------------------------")
-    print("11. Final Modeli Tüm Veri Üzerinde Eğitiliyor...")
+    print("10. Final Modeli Tüm Veri Üzerinde Eğitiliyor...")
     # Genelde production için model, validation ve train birleşimiyle baştan eğitilir.
     
     preprocessor_final = FullPreprocessor()
@@ -131,7 +96,7 @@ def main():
                              random_state=42, max_iter=10000)
     final_model.fit(X_selected, y_log)
     
-    print("\n12. Model ve Artifacts (Preprocessor, FeatureSelector) diske kaydediliyor...")
+    print("\n11. Model ve Artifacts (Preprocessor, FeatureSelector) diske kaydediliyor...")
     save_artifacts(final_model, preprocessor_final, feature_selector_final)
     print("\nEĞİTİM BAŞARIYLA TAMAMLANDI!")
 
